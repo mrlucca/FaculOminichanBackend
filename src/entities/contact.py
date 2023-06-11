@@ -5,6 +5,7 @@ from sqlalchemy.orm import declarative_base
 
 Base = declarative_base()
 
+
 class Contact(Base):
     __tablename__ = "contacts"
     id = Column(Integer, primary_key=True, index=True, autoincrement=True)
@@ -13,10 +14,12 @@ class Contact(Base):
     photo = Column(String)
     phone = Column(String)
 
+
 class ContactCreate(BaseModel):
     name: str
     photo: str
     phone: str
+
 
 class ContactListCreate(BaseModel):
     email: str
