@@ -16,6 +16,7 @@ class Contact(Base):
 
 
 class ContactCreate(BaseModel):
+    client_email: str
     name: str
     photo: str
     phone: str

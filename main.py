@@ -1,14 +1,21 @@
+import os
 from fastapi import FastAPI
 from sqlalchemy.ext.asyncio import create_async_engine, AsyncSession
 from sqlalchemy.orm import sessionmaker
 
-from src.controllers.contacts import ContactController
+from src.entities.contact import Base
+from src.infrastructures.routers.contacts import get_contacts_router
 
-from src.entities.contact import Base, ContactCreate, ContactListCreate
-from src.repositories.contacts import ContactRepository
+from fastapi.middleware.cors import CORSMiddleware
 
+DB_USER = os.getenv("DB_USER")
+DB_PASSWORD = os.getenv("DB_PASSWORD")
+DB_HOST = os.getenv("DB_HOST")
+DB_PORT = os.getenv("DB_PORT")
+DB_NAME = os.getenv("DB_NAME")
 
-DATABASE_URL = "sqlite+aiosqlite:///./contacts.db"
+DATABASE_URL = f"postgresql+asyncpg://{DB_USER}:{DB_PASSWORD}@{DB_HOST}:{DB_PORT}/{DB_NAME}"
+
 engine = create_async_engine(DATABASE_URL, future=True)
 SessionLocal = sessionmaker(engine, class_=AsyncSession, expire_on_commit=False)
 
@@ -26,28 +33,17 @@ async def shutdown():
     await engine.dispose()
 
 
-@app.post("/contacts/{email}")
-async def create_contact(email: str, contact: ContactCreate):
-    contact_repository = ContactRepository(SessionLocal())
-    controller = ContactController(contact_repository)
-    return await controller.create_contact(email, contact)
+app.include_router(get_contacts_router(SessionLocal))
 
 
-@app.get("/contacts/{email}")
-async def get_contacts(email: str):
-    contact_repository = ContactRepository(SessionLocal())
-    controller = ContactController(contact_repository)
-    return await controller.get_contacts(email)
-
-
-@app.post("/contact-list")
-async def create_contact_list(contact_list: ContactListCreate):
-    contact_repository = ContactRepository(SessionLocal())
-    controller = ContactController(contact_repository)
-    return await controller.create_contact_list(contact_list)
-
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 if __name__ == "__main__":
     import uvicorn
 
-    uvicorn.run(app, host="0.0.0.0", port=8000)
+    uvicorn.run(app, host="0.0.0.0", port=80)

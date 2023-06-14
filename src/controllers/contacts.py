@@ -1,5 +1,5 @@
 from src.entities.contact import ContactCreate, ContactListCreate
-from src.repositories.contacts import ContactRepository
+from src.infrastructures.repositories.contacts import ContactRepository
 
 
 class ContactController:
@@ -7,7 +7,7 @@ class ContactController:
         self.contact_repository = contact_repository
 
     async def create_contact(self, email: str, contact: ContactCreate):
-        await self.contact_repository.create(email, contact)
+        await self.contact_repository.create(contact.client_email, contact)
         return {"message": "Contact created successfully"}
 
     async def get_contacts(self, email: str):
