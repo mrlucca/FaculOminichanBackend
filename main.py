@@ -8,13 +8,16 @@ from src.infrastructures.routers.contacts import get_contacts_router
 
 from fastapi.middleware.cors import CORSMiddleware
 
+
 DB_USER = os.getenv("DB_USER")
 DB_PASSWORD = os.getenv("DB_PASSWORD")
 DB_HOST = os.getenv("DB_HOST")
 DB_PORT = os.getenv("DB_PORT")
 DB_NAME = os.getenv("DB_NAME")
 
-DATABASE_URL = f"postgresql+psycopg://{DB_USER}:{DB_PASSWORD}@{DB_HOST}:{DB_PORT}/{DB_NAME}"
+DATABASE_URL = f"postgresql+asyncpg://{DB_USER}:{DB_PASSWORD}@{DB_HOST}:{DB_PORT}/{DB_NAME}"
+print(DATABASE_URL)
+
 
 engine = create_async_engine(DATABASE_URL, future=True)
 SessionLocal = sessionmaker(engine, class_=AsyncSession, expire_on_commit=False)
@@ -36,12 +39,12 @@ async def shutdown():
 app.include_router(get_contacts_router(SessionLocal))
 
 
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=["*"],
-    allow_methods=["*"],
-    allow_headers=["*"],
-)
+# app.add_middleware(
+#     CORSMiddleware,
+#     allow_origins=["*"],
+#     allow_methods=["*"],
+#     allow_headers=["*"],
+# )
 
 if __name__ == "__main__":
     import uvicorn

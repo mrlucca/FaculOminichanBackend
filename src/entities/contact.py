@@ -15,13 +15,15 @@ class Contact(Base):
     phone = Column(String)
 
 
-class ContactCreate(BaseModel):
-    client_email: str
+class BaseContactCreate(BaseModel):
     name: str
     photo: str
     phone: str
 
+class ContactCreate(BaseContactCreate):
+    client_email: str
+
 
 class ContactListCreate(BaseModel):
     email: str
-    contacts: List[ContactCreate]
+    contacts: List[BaseContactCreate]
